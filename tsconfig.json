@@ -116,6 +116,8 @@
     "*.js",
     "*.ts",
     "*.json",
+    "**/*.ts",
+    "**/*.json",
   ],
   "exclude": [ "node_modules", "infra/cdk.out", ], // 'cuz explicitly specifying it improves performance
 }

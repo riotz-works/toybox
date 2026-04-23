@@ -153,4 +153,15 @@ export default [
     files: [ '**/*.{js,cjs,mjs}', ],
     ...tsConfigs.disableTypeChecked,
   },
+
+  {
+    files: [ './infra/**/*.ts', ],
+    rules: {
+      'max-classes-per-file':                 'off',
+      'max-lines-per-function':               'off',
+      'max-statements':                       'off',
+      'no-new':                               'off',
+      'sonarjs/constructor-for-side-effects': 'off',
+    },
+  },
 ];

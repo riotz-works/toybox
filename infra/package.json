@@ -3,7 +3,12 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "clean": "rimraf node_modules/.cache cdk.out"
+    "clean": "rimraf node_modules/.cache cdk.out",
+    "package": "npm-run-all -s synth:*",
+    "bootstrap": "cdk bootstrap --app 'tsx bin/account.ts' --strict --version-reporting false --path-metadata false --asset-metadata false",
+    "synth:account": "cdk synth --app 'tsx bin/account.ts' --strict --version-reporting false --path-metadata false --asset-metadata false",
+    "deploy": "npm-run-all -p deploy:*",
+    "deploy:account": "cdk deploy --app 'tsx bin/account.ts' --asset-parallelism --asset-prebuild=true --concurrency 10 --method=direct --version-reporting false --path-metadata false --asset-metadata false"
   },
   "dependencies": {
     "aws-cdk-lib": "2.250.0",
