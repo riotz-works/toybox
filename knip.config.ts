@@ -8,13 +8,12 @@ const config: KnipConfig = {
     '.': {
       entry: [ '*.{js,ts}', ],
     },
+    'infra': {
+      entry: [ 'bin/*.ts', ],
+    },
   },
   exclude: [ 'unresolved', ],
   ignoreDependencies: [
-    'aws-cdk-lib',
-    'aws-cdk',
-    'cdk-nag',
-    'constructs',
     'eslint-formatter-table',
     'tsx',
   ],
