@@ -9,7 +9,8 @@
     "clean": "rimraf node_modules/.cache && pnpm -r --if-present --parallel run clean",
     "build": "tsc && pnpm run -r --parallel --if-present build",
     "lint": "npm-run-all -p lint:*",
-    "lint:eslint": "eslint . --ignore-pattern .gitignore --concurrency=auto --cache --cache-location=node_modules/.cache/eslint/"
+    "lint:eslint": "eslint . --ignore-pattern .gitignore --concurrency=auto --cache --cache-location=node_modules/.cache/eslint/",
+    "lint:knip": "knip --tags=-knipignore --cache"
   },
   "devDependencies": {
     "@eslint-community/eslint-plugin-eslint-comments": "4.7.1",
