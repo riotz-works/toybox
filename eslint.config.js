@@ -1,11 +1,13 @@
-import comments from '@eslint-community/eslint-plugin-eslint-comments/configs';
-import globals from 'globals';
-import js from '@eslint/js';
-import pkg from './package.json' with { type: 'json', };
+/* eslint-disable import-x/no-default-export -- 'cuz defined by ESLint */
 import { readFileSync, } from 'node:fs';
+import js from '@eslint/js';
+import comments from '@eslint-community/eslint-plugin-eslint-comments/configs';
 import stylistic from '@stylistic/eslint-plugin';
-import { configs as tsConfigs, } from 'typescript-eslint';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
+import { flatConfigs as importFlatConfigs, } from 'eslint-plugin-import-x';
+import globals from 'globals';
+import { configs as tsConfigs, } from 'typescript-eslint';
+import pkg from './package.json' with { type: 'json', };
 
 
 export default [
@@ -28,12 +30,24 @@ export default [
     },
   },
 
+  importFlatConfigs.recommended,
+  importFlatConfigs.typescript,
+  {
+    settings: {
+      'import-x/resolver': {
+        node: true,
+        typescript: true,
+      },
+    },
+  },
+
 
   {
     rules: {
       // Disable Lint settings
       'no-warning-comments':                    'warn', // To allow for development productivity but be warned that long-term use is not desirable.
       'no-undefined':                            'off', // To use of TypeScript is prohibited from changing global objects.
+      'sort-imports':                            'off', // To use import-x/order.
       'sort-keys':                               'off', // To prioritize semantic order over alphabetical order. (e.g. prefer 'id, name, email' to 'email, id, name')
       '@typescript-eslint/member-ordering':      'off', // To prioritize semantic order over alphabetical order. (e.g. prefer 'id, name, email' to 'email, id, name')
       '@typescript-eslint/no-magic-numbers':     'off', // To handle numerical values directly like HTTP status code and appropriateness of use is assessed by review.
@@ -47,6 +61,17 @@ export default [
       // Enable Lint settings
       '@eslint-community/eslint-comments/no-unused-disable':   'error',
       '@eslint-community/eslint-comments/require-description': 'error',
+      'import-x/first':                                        'error',
+      'import-x/group-exports':                                'error',
+      'import-x/newline-after-import':                         'error',
+      'import-x/no-default-export':                            'error',
+      'import-x/no-duplicates':                                'error',
+      'import-x/no-named-as-default':                          'error',
+      'import-x/no-named-as-default-member':                   'error',
+      'import-x/no-named-default':                             'error',
+      'import-x/no-namespace':                                 'error',
+      'import-x/no-unassigned-import':                         'error',
+      'import-x/order':                                        [ 'error', { 'alphabetize': { order: 'asc', }, 'newlines-between': 'never', },],
 
       // Custom rule: Force "right side is larger" inequality
       'yoda': 'off',
@@ -108,6 +133,8 @@ export default [
     files: [ 'eslint.config.js', ],
     rules: {
       'id-length': 'off',
+      'import-x/no-named-as-default': 'off',
+      'import-x/no-named-as-default-member': 'off',
     },
   },
 
