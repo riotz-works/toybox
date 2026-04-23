@@ -299,6 +299,23 @@ TypeScript のコードはビルドすることで型チェックを行います
 pnpm run build
 ```
 
+### Lint
+ESLint によるチェックをします。
+- [ESLint](https://eslint.org/)
+
+Lint は基本的なコーディングの作法をチームに適用します。ルールに則ったコーディングをします。またコーディングのバラツキを防ぐ適切なルールがある場合は導入の検討をします。新しいルールの導入や既存ルールの見直しは適宜チームへ相談、あるいはプルリクエストで議論します。
+
+現在の設定は各ルールの `all` や `recommended` をベースに必要に応じて変更しています。  
+絶対的なルールではなく現状に合った最適なルールへ育てていく必要があります。  
+
+[Disabling Rules with Inline Comments](https://eslint.org/docs/user-guide/configuring/rules#disabling-rules) などによる Lint の無効化は原則として禁止です。どうしても必要となる場合は、無効化する理由を設定し、プルリクエストで Lint を無効化するコードが含まれること、その説明を記載し必ず議論にしてください。  
+また必要に応じて全体のルールを変更するようにします。個別の無効化が散乱すると保守性が下がります。  
+
+Lint は以下のコマンドで実行します。
+```shell-session
+pnpm run lint
+```
+
 ### CI/CD
 GitHub Actions により CI/CD を構成しています。
 - [GitHub Actions](https://docs.github.com/ja/actions)

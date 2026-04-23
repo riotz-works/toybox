@@ -91,8 +91,60 @@ jobs:
           pnpm run build
 
 
+  lint-status:
+    needs: [ eslint, knip ]
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    steps:
+      - name: Lint Status
+        run: echo "Linting completed successfully"
+
+  eslint:
+    needs: [ init, setup ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        node-version: ${{ fromJSON(needs.init.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+      - name: ESLint
+        run: |
+          pnpm run setup
+          pnpm run lint:eslint --max-warnings "$(grep -oE "eslint-max-warnings: [0-9]+" ./.github/workflows/pull-request-review.yml | grep -oE "[0-9]+")"
+
+  knip:
+    needs: [ setup ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - name: Knip
+        run: |
+          pnpm run setup
+          pnpm run lint:knip
+
+
   check-status:
-    needs: [ build-status ]
+    needs: [ build-status, lint-status ]
     if: always()
     runs-on: ubuntu-slim
     timeout-minutes: 10
@@ -102,6 +154,7 @@ jobs:
           # Note: Add check implementation when needs are increased
           FAILED=0
           [ "$BUILD_STATUS_RESULT" = "success" ] || FAILED=$((FAILED + 1))
+          [ "$LINT_STATUS_RESULT" = "success" ] || FAILED=$((FAILED + 1))
 
           if [ "$FAILED" -ne 0 ]; then
             echo "::error ::$FAILED required jobs failed or were cancelled"
@@ -110,3 +163,4 @@ jobs:
           echo "Checking completed successfully"
         env:
           BUILD_STATUS_RESULT: ${{ needs.build-status.result }}
+          LINT_STATUS_RESULT: ${{ needs.lint-status.result }}

@@ -113,6 +113,8 @@
     "skipLibCheck": true,                                /* Skip type checking all .d.ts files. */
   },
   "include": [
+    "*.js",
+    "*.ts",
     "*.json",
   ],
   "exclude": [ "node_modules", "infra/cdk.out", ], // 'cuz explicitly specifying it improves performance
