@@ -115,5 +115,5 @@
   "include": [
     "*.json",
   ],
-  "exclude": [ "node_modules", ], // 'cuz explicitly specifying it improves performance
+  "exclude": [ "node_modules", "infra/cdk.out", ], // 'cuz explicitly specifying it improves performance
 }
