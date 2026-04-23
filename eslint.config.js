@@ -6,6 +6,7 @@ import stylistic from '@stylistic/eslint-plugin';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import { flatConfigs as importFlatConfigs, } from 'eslint-plugin-import-x';
 import n from 'eslint-plugin-n';
+import security from 'eslint-plugin-security';
 import globals from 'globals';
 import { configs as tsConfigs, } from 'typescript-eslint';
 import pkg from './package.json' with { type: 'json', };
@@ -20,6 +21,7 @@ export default [
   stylistic.configs.all,
   n.configs['flat/all'],
   comments.recommended,
+  security.configs.recommended,
 
   ...tsConfigs.all,
   {
