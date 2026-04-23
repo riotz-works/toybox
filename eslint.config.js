@@ -5,6 +5,7 @@ import comments from '@eslint-community/eslint-plugin-eslint-comments/configs';
 import stylistic from '@stylistic/eslint-plugin';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import { flatConfigs as importFlatConfigs, } from 'eslint-plugin-import-x';
+import n from 'eslint-plugin-n';
 import globals from 'globals';
 import { configs as tsConfigs, } from 'typescript-eslint';
 import pkg from './package.json' with { type: 'json', };
@@ -17,6 +18,7 @@ export default [
   { ignores: [ ...readFileSync('.gitignore', 'utf-8',).split('\n',).filter((line,) => line && !line.startsWith('#',),), ], },
   js.configs.all,
   stylistic.configs.all,
+  n.configs['flat/all'],
   comments.recommended,
 
   ...tsConfigs.all,
@@ -132,6 +134,7 @@ export default [
   {
     files: [ 'eslint.config.js', ],
     rules: {
+      'n/no-sync': 'off',
       'id-length': 'off',
       'import-x/no-named-as-default': 'off',
       'import-x/no-named-as-default-member': 'off',
