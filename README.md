@@ -287,6 +287,18 @@ diff から読み取れる変更したファイルや内容の列挙ではなく
 マージする前に GitHub のプルリクエスト画面の「Update branch」ボタンを必ず確認します。  
 有効な場合は必ず「Update with rebase」をし、わかりやすいコミットログのネットワークを意識するとともに最新の状態でビルドや Lint エラーが発生しないことを確認します。  
 
+### Build
+本プロジェクトは TypeScript でコーディングや設定をします。
+- [TypeScript](https://www.typescriptlang.org/)
+
+TypeScript のコードはビルドすることで型チェックを行います。型を明示したコーディングを行うことで引数や戻り値を間違えた型で扱う不具合を減らし、仕様を明確にした実装を行えます。  
+各宣言には適切な型を明示します。(原則として `any` の利用は禁止です)  
+
+ビルドは以下のコマンドで実行します。
+```shell-session
+pnpm run build
+```
+
 ### CI/CD
 GitHub Actions により CI/CD を構成しています。
 - [GitHub Actions](https://docs.github.com/ja/actions)

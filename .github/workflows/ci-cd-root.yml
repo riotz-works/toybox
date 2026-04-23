@@ -59,7 +59,40 @@ jobs:
           pnpm run setup
 
 
+  build-status:
+    needs: [ tsc ]
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    steps:
+      - name: Build Status
+        run: echo "Building completed successfully"
+
+  tsc:
+    needs: [ init, setup ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        node-version: ${{ fromJSON(needs.init.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+      - name: TypeScript Build
+        run: |
+          pnpm run setup
+          pnpm run build
+
+
   check-status:
+    needs: [ build-status ]
     if: always()
     runs-on: ubuntu-slim
     timeout-minutes: 10
@@ -68,9 +101,12 @@ jobs:
         run: |
           # Note: Add check implementation when needs are increased
           FAILED=0
+          [ "$BUILD_STATUS_RESULT" = "success" ] || FAILED=$((FAILED + 1))
 
           if [ "$FAILED" -ne 0 ]; then
             echo "::error ::$FAILED required jobs failed or were cancelled"
             exit 1
           fi
           echo "Checking completed successfully"
+        env:
+          BUILD_STATUS_RESULT: ${{ needs.build-status.result }}
