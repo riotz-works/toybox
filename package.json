@@ -11,6 +11,8 @@
   },
   "devDependencies": {
     "@types/node": "25.6.0",
+    "@typescript-eslint/eslint-plugin": "8.58.2",
+    "eslint": "10.2.0",
     "fixme": "0.7.0",
     "rimraf": "6.1.3",
     "typescript": "6.0.2"
