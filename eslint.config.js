@@ -1,3 +1,4 @@
+import comments from '@eslint-community/eslint-plugin-eslint-comments/configs';
 import globals from 'globals';
 import js from '@eslint/js';
 import pkg from './package.json' with { type: 'json', };
@@ -14,6 +15,7 @@ export default [
   { ignores: [ ...readFileSync('.gitignore', 'utf-8',).split('\n',).filter((line,) => line && !line.startsWith('#',),), ], },
   js.configs.all,
   stylistic.configs.all,
+  comments.recommended,
 
   ...tsConfigs.all,
   {
@@ -38,8 +40,13 @@ export default [
       '@typescript-eslint/no-use-before-define': 'off', // To keep readability by declaring lower importance(like private function) at low position in file.
 
       // Customize Lint settings
-      '@stylistic/newline-per-chained-call':            [ 'error', { ignoreChainWithDepth: 5, },], // To take advantage of chained call flexibility.
-      '@typescript-eslint/consistent-type-definitions': [ 'error', 'type', ],                      // Use type alias instead of interface to prevent dangerous type overrides
+      '@eslint-community/eslint-comments/disable-enable-pair': [ 'error', { allowWholeFile: true, },],    // To improve readability by disabling rule in whole file for configuration and test cases, etc.
+      '@stylistic/newline-per-chained-call':                   [ 'error', { ignoreChainWithDepth: 5, },], // To take advantage of chained call flexibility.
+      '@typescript-eslint/consistent-type-definitions':        [ 'error', 'type', ],                      // Use type alias instead of interface to prevent dangerous type overrides
+
+      // Enable Lint settings
+      '@eslint-community/eslint-comments/no-unused-disable':   'error',
+      '@eslint-community/eslint-comments/require-description': 'error',
 
       // Custom rule: Force "right side is larger" inequality
       'yoda': 'off',
