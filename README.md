@@ -286,3 +286,16 @@ diff から読み取れる変更したファイルや内容の列挙ではなく
 
 マージする前に GitHub のプルリクエスト画面の「Update branch」ボタンを必ず確認します。  
 有効な場合は必ず「Update with rebase」をし、わかりやすいコミットログのネットワークを意識するとともに最新の状態でビルドや Lint エラーが発生しないことを確認します。  
+
+### CI/CD
+GitHub Actions により CI/CD を構成しています。
+- [GitHub Actions](https://docs.github.com/ja/actions)
+
+Actions
+| 種類                 | 概要                                 |
+|:---------------------|:-------------------------------------|
+| actionlint           | GitHub Actions 定義ファイルの Lint   |
+| CI/CD Root Directory | Root ディレクトリの CI/CD            |
+| Consolidated Updates | Dependabot による依存モジュール更新  |
+| PR Label             | プルリクエストにラベルを設定         |
+| PR Review            | プルリクエストにメトリクスをコメント |
