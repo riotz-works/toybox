@@ -41,6 +41,20 @@ const createAccountConfig = (app: App,): Config => ((): Config => {
   }
 })();
 
+const createBaseConfig = (app: App,): Config => ((): Config => {
+  const stageName = stage(app,);
+  if (stageName.startsWith('qa',)) {
+    return qas(app,);
+  }
+  switch (stageName) {
+    case 'dev': return dev(app,);
+    case 'stg': return stg(app,);
+    case 'prd': return prd(app,);
+    default:
+      return base(app,);
+  }
+})();
+
 
 type LogLevel = 'DEBUG' | 'INFO';
 
@@ -93,6 +107,41 @@ const dev = (app: App,): Config => ({
   retention: RetentionDays.ONE_WEEK,
 });
 
+const qas = (app: App,): Config => ({
+  ...base(app,),
+  env: {
+    account: context(app, 'account', accounts.dev,),
+    region: context(app, 'region', 'us-west-2',),
+    stage: stage(app,),
+  },
+  auth: {
+    callbackUrls: [ `https://${stage(app,)}.np.${domain}/api/auth/callback`, 'http://localhost:5173/auth/callback/cognito', ],
+    logoutUrls: [ `https://${stage(app,)}.np.${domain}/api/auth/logout`, 'http://localhost:5173/auth/login', ],
+  },
+  retention: RetentionDays.THREE_MONTHS,
+});
+
+const stg = (app: App,): Config => ({
+  ...base(app,),
+  env: {
+    account: context(app, 'account', accounts.prd,),
+    region: context(app, 'region', 'us-west-2',),
+    stage: stage(app,),
+  },
+  domain: `${stage(app,)}.${domain}`,
+  auth: {
+    callbackUrls: [ `https://${stage(app,)}.${domain}/api/auth/callback`, ],
+    logoutUrls: [ `https://${stage(app,)}.${domain}/api/auth/logout`, ],
+  },
+  logLevel: 'INFO',
+  retention: RetentionDays.SIX_MONTHS,
+  removalPolicy: RemovalPolicy.RETAIN,
+  terminationProtection: true,
+  memorySize: 3 * 1024, // Expecting ~2–3 vCPUs at this memory size (based on observed behavior; not guaranteed by AWS)
+  deletionProtection: true,
+  pointInTimeRecoverySpecification: { pointInTimeRecoveryEnabled: true, },
+});
+
 const prd = (app: App,): Config => ({
   env: {
     account: context(app, 'account', accounts.prd,),
@@ -116,4 +165,4 @@ const prd = (app: App,): Config => ({
 
 
 export type { Config, };
-export { accounts, createApp, createAccountConfig, idToName, name, repo, };
+export { accounts, createApp, createAccountConfig, createBaseConfig, idToName, name, repo, };
