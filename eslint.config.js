@@ -7,6 +7,7 @@ import tsPlugin from '@typescript-eslint/eslint-plugin';
 import { flatConfigs as importFlatConfigs, } from 'eslint-plugin-import-x';
 import n from 'eslint-plugin-n';
 import security from 'eslint-plugin-security';
+import sonarjs from 'eslint-plugin-sonarjs';
 import globals from 'globals';
 import { configs as tsConfigs, } from 'typescript-eslint';
 import pkg from './package.json' with { type: 'json', };
@@ -22,6 +23,7 @@ export default [
   n.configs['flat/all'],
   comments.recommended,
   security.configs.recommended,
+  sonarjs.configs.recommended,
 
   ...tsConfigs.all,
   {
@@ -53,6 +55,8 @@ export default [
       'no-undefined':                            'off', // To use of TypeScript is prohibited from changing global objects.
       'sort-imports':                            'off', // To use import-x/order.
       'sort-keys':                               'off', // To prioritize semantic order over alphabetical order. (e.g. prefer 'id, name, email' to 'email, id, name')
+      'sonarjs/fixme-tag':                       'off', // To use no-warning-comments.
+      'sonarjs/todo-tag':                        'off', // To use no-warning-comments.
       '@typescript-eslint/member-ordering':      'off', // To prioritize semantic order over alphabetical order. (e.g. prefer 'id, name, email' to 'email, id, name')
       '@typescript-eslint/no-magic-numbers':     'off', // To handle numerical values directly like HTTP status code and appropriateness of use is assessed by review.
       '@typescript-eslint/no-use-before-define': 'off', // To keep readability by declaring lower importance(like private function) at low position in file.
@@ -108,6 +112,8 @@ export default [
       'no-nested-ternary':                                  [ 'off', ],
       'no-ternary':                                         [ 'off', ],
       'one-var':                                            [ 'error', 'never', ],
+      'sonarjs/no-nested-conditional':                      [ 'off', ],
+      'sonarjs/no-nested-template-literals':                [ 'off', ],
       '@stylistic/array-bracket-newline':                   [ 'error', 'consistent', ],
       '@stylistic/array-bracket-spacing':                   [ 'error', 'always', { arraysInArrays: false, objectsInArrays: false, },],
       '@stylistic/array-element-newline':                   [ 'error', 'consistent', ],
