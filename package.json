@@ -1,0 +1,31 @@
+{
+  "name": "toybox",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "packageManager": "pnpm@10.33.1+sha512.05ba3c1d5d1c18f68df06470d74055e62d41fc110a0c660db1b2dfb2785327f04cf0f68345d4609bc52089e7fa0343c31593b2f9594e2c5d5da426230acc9820",
+  "scripts": {
+    "setup": "pnpm install --frozen-lockfile"
+  },
+  "trustPolicy": "strict",
+  "engines": {
+    "node": "24.x"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^24.0.0",
+      "onFail": "download"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/riotz-works/toybox",
+    "productOwners": [
+      "riotz-po"
+    ]
+  },
+  "author": "Riotz.works (https://riotz.works)",
+  "license": "UNLICENSED",
+  "devDependencies": {}
+}
