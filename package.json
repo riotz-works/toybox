@@ -10,7 +10,10 @@
     "build": "tsc && pnpm run -r --parallel --if-present build",
     "lint": "npm-run-all -p lint:*",
     "lint:eslint": "eslint . --ignore-pattern .gitignore --concurrency=auto --cache --cache-location=node_modules/.cache/eslint/",
-    "lint:knip": "knip --tags=-knipignore --cache"
+    "lint:knip": "knip --tags=-knipignore --cache",
+    "package": "pnpm run -r --parallel --if-present package",
+    "deploy": "pnpm run -r --parallel --if-present deploy",
+    "infra": "pnpm -F infra"
   },
   "devDependencies": {
     "@eslint-community/eslint-plugin-eslint-comments": "4.7.1",

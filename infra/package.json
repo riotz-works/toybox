@@ -1,0 +1,17 @@
+{
+  "name": "infra",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "clean": "rimraf node_modules/.cache cdk.out"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.250.0",
+    "cdk-nag": "2.37.55",
+    "constructs": "10.6.0"
+  },
+  "devDependencies": {
+    "aws-cdk": "2.1118.0",
+    "tsx": "4.21.0"
+  }
+}

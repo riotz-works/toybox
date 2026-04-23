@@ -11,7 +11,12 @@ const config: KnipConfig = {
   },
   exclude: [ 'unresolved', ],
   ignoreDependencies: [
+    'aws-cdk-lib',
+    'aws-cdk',
+    'cdk-nag',
+    'constructs',
     'eslint-formatter-table',
+    'tsx',
   ],
 };
 
