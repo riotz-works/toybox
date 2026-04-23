@@ -1,0 +1,8 @@
+{
+  "name": "infra",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "clean": "rimraf node_modules/.cache cdk.out"
+  }
+}
