@@ -27,7 +27,7 @@ class LoggingBucket extends Construct {
       },],
       ...props, // 'props' last to allow overrides of defaults defined above
     }, false,);
-    NagSuppressions.addResourceSuppressions(bucket.s3, [
+    NagSuppressions.addResourceSuppressions(bucket, [
       { id: 'AwsSolutions-S1', reason: 'Logging bucket should not have server access logs to prevent circular logging', },
     ], true,);
 

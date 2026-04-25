@@ -1,5 +1,5 @@
 import { createHash, } from 'node:crypto';
-import { Role, type IManagedPolicy, type IRoleRef, type PolicyStatement, type RoleProps, } from 'aws-cdk-lib/aws-iam';
+import { Role, type IManagedPolicy, type IRole, type PolicyStatement, type RoleProps, } from 'aws-cdk-lib/aws-iam';
 import { Construct, } from 'constructs';
 import { idToName, type Config, } from '../../config.js';
 
@@ -14,7 +14,7 @@ class BaseRole extends Construct {
   private readonly role: Role;
 
   public get roleArn(): string { return this.role.roleArn; }
-  public get roleRef(): IRoleRef { return this.role; }
+  public get roleRef(): IRole { return this.role; }
 
   public constructor(scope: Construct, id: string, props: BaseRoleProps,) {
     super(scope, id,);

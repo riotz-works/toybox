@@ -22,9 +22,6 @@ class BaseBucket extends Construct {
 
   private readonly bucket: Bucket;
 
-  /** Underlying bucket construct (parent scope may differ from this construct for stable logical IDs). */
-  public get s3(): Bucket { return this.bucket; }
-
   public get bucketName(): string { return this.bucket.bucketName; }
 
   public constructor(scope: Construct, id: string, props: BaseBucketProps, protection = true,) {
