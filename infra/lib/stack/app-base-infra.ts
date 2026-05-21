@@ -3,7 +3,7 @@ import type { ITopic, } from 'aws-cdk-lib/aws-sns';
 import type { IQueue, } from 'aws-cdk-lib/aws-sqs';
 import type { Construct, } from 'constructs';
 import { idToName, type Config, } from '../config.js';
-import { BaseStack, type BaseStackProps, } from '../construct/base/index.js';
+import { BaseStack, type BaseStackProps, } from '../construct/base/stack.js';
 import { LoggingBucket, } from '../construct/s3/logging.js';
 import { MalwareNotificationTopic, } from '../construct/sns/malware-notification.js';
 import { DeadLetterQueue, } from '../construct/sqs/dlq.js';
