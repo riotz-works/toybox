@@ -35,7 +35,7 @@ jobs:
 
   zizmor:
     runs-on: ubuntu-latest
-    container: ghcr.io/zizmorcore/zizmor:latest
+    container: ghcr.io/zizmorcore/zizmor@sha256:7cb859e5571f816500830055e26b928609214033c410c76d2169d31a1410729a # v1.25.0
     timeout-minutes: 10
     permissions:
       contents: read
