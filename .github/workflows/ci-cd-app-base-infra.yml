@@ -32,9 +32,11 @@ concurrency:
 
 env:
   NODE_OPTIONS: --max-old-space-size=4096
-  aws-account-id-dev: 807845208391
-  aws-account-id-prd: 807845208391
   matrix-node-versions: 24
+  role-readonly-np: arn:aws:iam::807845208391:role/sys-ci-toybox-readonly-np
+  role-readonly-prd: arn:aws:iam::807845208391:role/sys-ci-toybox-readonly-prd
+  role-deploy-np: arn:aws:iam::807845208391:role/sys-ci-toybox-deploy-np
+  role-deploy-prd: arn:aws:iam::807845208391:role/sys-ci-toybox-deploy-prd
 
 
 jobs:
@@ -199,15 +201,15 @@ jobs:
         id: determine-role
         run: |
           if [ "$STAGE_NAME" = "stg" ] || [ "$STAGE_NAME" = "prd" ]; then
-            ROLE_ARN="arn:aws:iam::${AWS_ACCOUNT_ID_PRD}:role/sys-ci-toybox-readonly"
+            ROLE_ARN="$ROLE_READONLY_PRD"
           else
-            ROLE_ARN="arn:aws:iam::${AWS_ACCOUNT_ID_DEV}:role/sys-ci-toybox-readonly"
+            ROLE_ARN="$ROLE_READONLY_NP"
           fi
           echo "role_arn=$ROLE_ARN" >> "$GITHUB_OUTPUT"
         env:
           STAGE_NAME: ${{ steps.determine-stage.outputs.stage_name }}
-          AWS_ACCOUNT_ID_DEV: ${{ env.aws-account-id-dev }}
-          AWS_ACCOUNT_ID_PRD: ${{ env.aws-account-id-prd }}
+          ROLE_READONLY_NP: ${{ env.role-readonly-np }}
+          ROLE_READONLY_PRD: ${{ env.role-readonly-prd }}
       - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           aws-region: 'us-east-1'
@@ -267,7 +269,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           aws-region: 'us-east-1'
-          role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-dev }}:role/sys-ci-toybox-deploy'
+          role-to-assume: '${{ env.role-deploy-np }}'
           role-session-name: gha-oreo-${{ github.run_id }}
       - name: Deploy to Dev
         run: |
@@ -296,7 +298,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           aws-region: 'us-east-1'
-          role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-dev }}:role/sys-ci-toybox-deploy'
+          role-to-assume: '${{ env.role-deploy-np }}'
           role-session-name: gha-oreo-${{ github.run_id }}
       - name: Check QA Branches
         id: check_branches
@@ -358,7 +360,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           aws-region: 'us-east-1'
-          role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-prd }}:role/sys-ci-toybox-deploy'
+          role-to-assume: '${{ env.role-deploy-prd }}'
           role-session-name: gha-oreo-${{ github.run_id }}
       - name: Deploy to Staging
         run: |
@@ -386,7 +388,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           aws-region: 'us-east-1'
-          role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-prd }}:role/sys-ci-toybox-deploy'
+          role-to-assume: '${{ env.role-deploy-prd }}'
           role-session-name: gha-oreo-${{ github.run_id }}
       - name: Deploy to Production
         run: |

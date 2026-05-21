@@ -10,7 +10,7 @@ const project = name.slice(0, name.indexOf('-',),);
 const repo = repository.url.split('/',).slice(-2,).join('/',).replace(/\.git$/u, '',);
 
 const accounts = {
-  dev: '807845208391',
+  np: '807845208391',
   prd: '807845208391',
 };
 
@@ -34,10 +34,10 @@ const createApp = (props?: AppProps,): App => {
 
 const createAccountConfig = (app: App,): Config => ((): Config => {
   switch (stage(app,)) {
-    case 'dev': return { ...dev(app,), suffix: '', };
-    case 'prd': return { ...prd(app,), suffix: '', };
+    case 'np': return dev(app,);
+    case 'prd': return prd(app,);
     default:
-      throw new Error(`Invalid stage: ${stage(app,)}. Only 'dev' and 'prd' exist at the account level.`,);
+      throw new Error(`Invalid stage: ${stage(app,)}. Only 'np' and 'prd' exist at the account level.`,);
   }
 })();
 
@@ -74,7 +74,7 @@ type Config = {
 
 const base = (app: App,): Config => ({
   env: {
-    account: context(app, 'account', accounts.dev,),
+    account: context(app, 'account', accounts.np,),
     region: context(app, 'region', 'us-east-2',),
     stage: stage(app,),
   },
@@ -96,13 +96,13 @@ const base = (app: App,): Config => ({
 const dev = (app: App,): Config => ({
   ...base(app,),
   env: {
-    account: context(app, 'account', accounts.dev,),
+    account: context(app, 'account', accounts.np,),
     region: context(app, 'region', 'us-east-2',),
     stage: stage(app,),
   },
   auth: {
-    callbackUrls: [ `https://${stage(app,)}.np.${domain}/api/auth/callback`, ],
-    logoutUrls: [ `https://${stage(app,)}.np.${domain}/api/auth/logout`, ],
+    callbackUrls: [ `https://${stage(app,)}.np.${domain}/auth/callback`, ],
+    logoutUrls: [ `https://${stage(app,)}.np.${domain}/auth/logout`, ],
   },
   retention: RetentionDays.ONE_WEEK,
 });
@@ -110,13 +110,13 @@ const dev = (app: App,): Config => ({
 const qas = (app: App,): Config => ({
   ...base(app,),
   env: {
-    account: context(app, 'account', accounts.dev,),
+    account: context(app, 'account', accounts.np,),
     region: context(app, 'region', 'us-west-2',),
     stage: stage(app,),
   },
   auth: {
-    callbackUrls: [ `https://${stage(app,)}.np.${domain}/api/auth/callback`, 'http://localhost:5173/auth/callback/cognito', ],
-    logoutUrls: [ `https://${stage(app,)}.np.${domain}/api/auth/logout`, 'http://localhost:5173/auth/login', ],
+    callbackUrls: [ `https://${stage(app,)}.np.${domain}/auth/callback`, ],
+    logoutUrls: [ `https://${stage(app,)}.np.${domain}/auth/logout`, ],
   },
   retention: RetentionDays.THREE_MONTHS,
 });
@@ -130,8 +130,8 @@ const stg = (app: App,): Config => ({
   },
   domain: `${stage(app,)}.${domain}`,
   auth: {
-    callbackUrls: [ `https://${stage(app,)}.${domain}/api/auth/callback`, ],
-    logoutUrls: [ `https://${stage(app,)}.${domain}/api/auth/logout`, ],
+    callbackUrls: [ `https://${stage(app,)}.${domain}/auth/callback`, ],
+    logoutUrls: [ `https://${stage(app,)}.${domain}/auth/logout`, ],
   },
   logLevel: 'INFO',
   retention: RetentionDays.SIX_MONTHS,
@@ -151,8 +151,8 @@ const prd = (app: App,): Config => ({
   domain,
   suffix: '',
   auth: {
-    callbackUrls: [ `https://${domain}/api/auth/callback`, ],
-    logoutUrls: [ `https://${domain}/api/auth/logout`, ],
+    callbackUrls: [ `https://${domain}/auth/callback`, ],
+    logoutUrls: [ `https://${domain}/auth/logout`, ],
   },
   logLevel: 'INFO',
   retention: RetentionDays.ONE_YEAR,
@@ -165,4 +165,4 @@ const prd = (app: App,): Config => ({
 
 
 export type { Config, };
-export { accounts, createApp, createAccountConfig, createBaseConfig, idToName, name, repo, };
+export { createApp, createAccountConfig, createBaseConfig, idToName, name, repo, };

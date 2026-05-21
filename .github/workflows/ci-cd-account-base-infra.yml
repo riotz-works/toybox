@@ -10,8 +10,9 @@ on:
       - '.github/workflows/ci-cd-account-base-infra.yml'
       - 'infra/bin/account.ts'
       - 'infra/lib/config.ts'
-      - 'infra/lib/util.ts'
+      - 'infra/lib/construct/base/output.ts'
       - 'infra/lib/stack/account-base-infra.ts'
+      - 'infra/lib/util.ts'
       - 'infra/package.json'
       - 'package.json'
       - 'pnpm-lock.yaml'
@@ -31,10 +32,12 @@ concurrency:
 
 env:
   NODE_OPTIONS: --max-old-space-size=4096
-  aws-account-id-dev: 807845208391
-  aws-account-id-prd: 807845208391
   matrix-node-versions: 24
   repository: toybox
+  role-readonly-np: arn:aws:iam::807845208391:role/sys-ci-toybox-readonly-np
+  role-readonly-prd: arn:aws:iam::807845208391:role/sys-ci-toybox-readonly-prd
+  role-deploy-np: arn:aws:iam::807845208391:role/sys-ci-toybox-deploy-np
+  role-deploy-prd: arn:aws:iam::807845208391:role/sys-ci-toybox-deploy-prd
 
 
 jobs:
@@ -181,18 +184,20 @@ jobs:
         run: |
           pnpm run setup
       - uses: aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885 # v6.1.1
+        if: github.ref != 'refs/heads/stable' && github.ref != 'refs/heads/production'
         with:
           aws-region: 'us-east-1'
-          role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-dev }}:role/sys-ci-toybox-readonly'
+          role-to-assume: '${{ env.role-readonly-np }}'
           role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Package Dev
+        if: github.ref != 'refs/heads/stable' && github.ref != 'refs/heads/production'
         run: |
-          pnpm infra run synth:account --context stage=dev
+          pnpm infra run synth:account --context stage=np
       - uses: aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885 # v6.1.1
         if: github.ref == 'refs/heads/stable' || github.ref == 'refs/heads/production'
         with:
           aws-region: 'us-east-1'
-          role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-prd }}:role/sys-ci-toybox-readonly'
+          role-to-assume: '${{ env.role-readonly-prd }}'
           role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Package Production
         if: github.ref == 'refs/heads/stable' || github.ref == 'refs/heads/production'
@@ -246,12 +251,12 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885 # v6.1.1
         with:
           aws-region: 'us-east-1'
-          role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-dev }}:role/sys-ci-toybox-deploy'
+          role-to-assume: '${{ env.role-deploy-np }}'
           role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Deploy to Dev
         run: |
           pnpm run setup
-          pnpm infra run deploy:account --context stage=dev --require-approval never
+          pnpm infra run deploy:account --context stage=np --require-approval never
 
   deploy-to-prd-stage:
     if: github.ref == 'refs/heads/production'
@@ -274,7 +279,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885 # v6.1.1
         with:
           aws-region: 'us-east-1'
-          role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-prd }}:role/sys-ci-toybox-deploy'
+          role-to-assume: '${{ env.role-deploy-prd }}'
           role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Deploy to Production
         run: |
