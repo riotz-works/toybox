@@ -51,24 +51,6 @@ class BaseLogGroup extends Construct {
       resources: [ loggingBucket.arnForObjects(`${prefix}*`,), ],
     },),);
 
-    const firehoseLogGroup = new LogGroup(this, 'FirehoseLogGroup', {
-      logGroupName: `/aws/kinesisfirehose/${firehoseName}`,
-    },);
-    const firehoseLogStream = new LogStream(this, 'FirehoseLogStream', {
-      logGroup: firehoseLogGroup,
-      logStreamName: 'firehose-errors',
-    },);
-    firehoseRole.addToPolicy(new PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: [ 'logs:CreateLogStream', ],
-      resources: [ firehoseLogGroup.logGroupArn, ],
-    },),);
-    firehoseRole.addToPolicy(new PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: [ 'logs:PutLogEvents', ],
-      resources: [ `${firehoseLogGroup.logGroupArn}:log-stream:*`, ],
-    },),);
-
     const deliveryStream = new CfnDeliveryStream(this, 'DeliveryStream', {
       deliveryStreamName: firehoseName,
       deliveryStreamType: 'DirectPut',
@@ -81,11 +63,6 @@ class BaseLogGroup extends Construct {
         prefix: `${prefix}year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/`,
         errorOutputPrefix: `${prefix}errors/!{firehose:error-output-type}/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/`,
         compressionFormat: 'UNCOMPRESSED',
-        cloudWatchLoggingOptions: {
-          enabled: true,
-          logGroupName: firehoseLogGroup.logGroupName,
-          logStreamName: 'firehose-errors',
-        },
         processingConfiguration: {
           enabled: true,
           processors: [{
@@ -99,7 +76,6 @@ class BaseLogGroup extends Construct {
       },
     },);
     deliveryStream.node.addDependency(firehoseRole,);
-    deliveryStream.node.addDependency(firehoseLogStream,);
 
     const cwlToFirehoseRole = new BaseRole(this, 'CwlToFirehoseRole', {
       assumedBy: new ServicePrincipal('logs.amazonaws.com',),
@@ -115,7 +91,6 @@ class BaseLogGroup extends Construct {
     ], true,);
     NagSuppressions.addResourceSuppressions(firehoseRole, [
       { id: 'AwsSolutions-IAM5', reason: 'Firehose requires object ARN wildcard for prefix-scoped object writes only.', appliesTo: [{ regex: '/Resource::.*cloud-watch-logs.*/', },], },
-      { id: 'AwsSolutions-IAM5', reason: 'Firehose error logging writes to log-stream:* under its dedicated log group.', appliesTo: [{ regex: '/Resource::.*:log-stream:\\*/', },], },
     ], true,);
 
 
