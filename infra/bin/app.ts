@@ -7,8 +7,11 @@ const app = createApp();
 const base = createBaseConfig(app,);
 
 
-const appBaseInfraStack = new AppBaseInfraStack(app, 'AppBaseInfra', base,);
+const appBaseInfraStack = new AppBaseInfraStack(app, base,);
 new CfnOutput(appBaseInfraStack, 'StackName', { value: appBaseInfraStack.stackName, },);
 
-const voicevoxRuntimeStack = new VoicevoxRuntimeStack(app, 'VoicevoxRuntime', base,);
+const voicevoxRuntimeStack = new VoicevoxRuntimeStack(app, {
+  appBaseInfraStack,
+  ...base,
+},);
 new CfnOutput(voicevoxRuntimeStack, 'StackName', { value: voicevoxRuntimeStack.stackName, },);
