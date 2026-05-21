@@ -17,6 +17,8 @@ concurrency:
   cancel-in-progress: false # zizmor: ignore[concurrency-limits] -- 'cuz concurrency cancellation is unsafe for pull_request label events
 
 
+env:
+  repository: toybox
 jobs:
   add-labels-change-type:
     if: github.event_name == 'pull_request'
@@ -118,7 +120,8 @@ jobs:
         with:
           app-id: ${{ secrets.RELEASE_FLOW_APP_ID }}
           private-key: ${{ secrets.RELEASE_FLOW_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+          repositories: ${{ env.repository }}
+          permission-members: read
       - name: Check labeled user is product owner
         id: check-approver
         run: |

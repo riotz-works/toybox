@@ -34,6 +34,7 @@ env:
   aws-account-id-dev: 807845208391
   aws-account-id-prd: 807845208391
   matrix-node-versions: 24
+  repository: toybox
 
 
 jobs:
@@ -183,7 +184,7 @@ jobs:
         with:
           aws-region: 'us-east-1'
           role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-dev }}:role/sys-ci-toybox-readonly'
-          role-session-name: gha-oreo-${{ github.run_id }}
+          role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Package Dev
         run: |
           pnpm infra run synth:account --context stage=dev
@@ -192,7 +193,7 @@ jobs:
         with:
           aws-region: 'us-east-1'
           role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-prd }}:role/sys-ci-toybox-readonly'
-          role-session-name: gha-oreo-${{ github.run_id }}
+          role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Package Production
         if: github.ref == 'refs/heads/stable' || github.ref == 'refs/heads/production'
         run: |
@@ -246,7 +247,7 @@ jobs:
         with:
           aws-region: 'us-east-1'
           role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-dev }}:role/sys-ci-toybox-deploy'
-          role-session-name: gha-oreo-${{ github.run_id }}
+          role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Deploy to Dev
         run: |
           pnpm run setup
@@ -274,7 +275,7 @@ jobs:
         with:
           aws-region: 'us-east-1'
           role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-prd }}:role/sys-ci-toybox-deploy'
-          role-session-name: gha-oreo-${{ github.run_id }}
+          role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Deploy to Production
         run: |
           pnpm run setup
