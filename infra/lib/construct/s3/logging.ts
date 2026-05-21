@@ -3,7 +3,7 @@ import { Bucket, BucketAccessControl, ObjectOwnership, StorageClass, type IBucke
 import { NagSuppressions, } from 'cdk-nag';
 import { Construct, } from 'constructs';
 import { name, } from '../../config.js';
-import { BaseBucket, OutputCrossStack, type BaseBucketProps, type CrossStackImportOptions, } from '../base/index.js';
+import { BaseBucket, OutputCrossStack, type BaseBucketProps, type ImportOptions, } from '../base/index.js';
 
 
 type LoggingBucketProps = Omit<BaseBucketProps, 'deadLetterQueue' | 'malwareNotificationTopic' | 'bucketName'>;
@@ -37,7 +37,7 @@ class LoggingBucket extends Construct {
   }
 
 
-  public static import(scope: Construct, id: string, stackName: string, options?: CrossStackImportOptions,): IBucket {
+  public static import(scope: Construct, id: string, stackName: string, options?: ImportOptions,): IBucket {
     const bucketName = OutputCrossStack.import(stackName, 'LoggingBucketName', options,);
     return Bucket.fromBucketName(scope, id, bucketName,);
   }

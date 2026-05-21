@@ -38,6 +38,6 @@ export class VoicevoxRuntimeStack extends BaseStack {
     functionUrl.grantInvokeUrl(new AccountPrincipal(this.account,),);
 
 
-    new Output(this, 'FunctionUrl', functionUrl.url,);
+    new Output(this, 'FunctionUrl', { value: functionUrl.url, },);
   }
 }

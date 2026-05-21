@@ -8,9 +8,10 @@ for cmd in aws curl jq; do
   }
 done
 
-STACK_NAME="${STACK_NAME:-toybox-voicevox-runtime}"
+STACK_NAME="${STACK_NAME:-toybox-voicevox-runtime-dev}"
+OUTPUT_KEY="${OUTPUT_KEY:-FunctionUrl}"
 PROFILE="${PROFILE:-poc-ops}"
-REGION="${REGION:-us-west-2}"
+REGION="${REGION:-us-east-2}"
 SPEAKER="${SPEAKER:-1}"
 TEXT="${TEXT:-テスト成功なのだ}"
 WORKDIR="${WORKDIR:-/tmp/voicevox-test}"
@@ -18,7 +19,7 @@ HTTP_TIMEOUT_SECONDS="${HTTP_TIMEOUT_SECONDS:-60}"
 
 BASE_URL="${BASE_URL:-$(aws cloudformation describe-stacks \
   --stack-name "${STACK_NAME}" \
-  --query "Stacks[0].Outputs[?OutputKey==\`FunctionUrl\`].OutputValue" \
+  --query "Stacks[0].Outputs[?OutputKey==\`${OUTPUT_KEY}\`].OutputValue" \
   --output text \
   --region "${REGION}" \
   --profile "${PROFILE}")}"
@@ -26,7 +27,7 @@ BASE_URL="${BASE_URL:-$(aws cloudformation describe-stacks \
 BASE_URL="${BASE_URL%/}"
 
 if [[ -z "${BASE_URL}" || "${BASE_URL}" == "None" ]]; then
-  echo "FunctionUrl output が取得できませんでした: ${STACK_NAME}" >&2
+  echo "FunctionUrl output が取得できませんでした: ${STACK_NAME} (OutputKey=${OUTPUT_KEY}, Region=${REGION})" >&2
   exit 1
 fi
 
@@ -78,7 +79,7 @@ fi
 if ! curl_iam GET "${BASE_URL}/version"; then
   echo >&2
   echo "VOICEVOX の /version が失敗しました。直近ログを確認してください:" >&2
-  echo "aws logs tail /aws/lambda/${STACK_NAME} --since 5m --region ${REGION} --profile ${PROFILE} --format short" >&2
+  echo "aws logs tail /aws/lambda/toybox-log-group-dev --since 5m --region ${REGION} --profile ${PROFILE} --format short" >&2
   exit 1
 fi
 echo
