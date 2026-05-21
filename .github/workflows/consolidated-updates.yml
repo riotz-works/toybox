@@ -84,14 +84,16 @@ jobs:
         run: |
           git remote set-url origin "https://x-access-token:$APP_TOKEN@github.com/$REPOSITORY.git"
           git fetch origin main
-          if ! git ls-remote --exit-code --heads origin dependabot/consolidated-updates > /dev/null; then
-            echo "::error::Branch dependabot/consolidated-updates does not exist on origin"
-            exit 1
+          if git ls-remote --exit-code --heads origin dependabot/consolidated-updates > /dev/null; then
+            git fetch origin dependabot/consolidated-updates
+            git checkout -B dependabot/consolidated-updates origin/dependabot/consolidated-updates
+            git rebase origin/main
+            git push --force-with-lease origin dependabot/consolidated-updates
+          else
+            echo "Branch dependabot/consolidated-updates does not exist. Creating from main..."
+            git checkout -b dependabot/consolidated-updates origin/main
+            git push origin dependabot/consolidated-updates
           fi
-          git fetch origin dependabot/consolidated-updates
-          git checkout -B dependabot/consolidated-updates origin/dependabot/consolidated-updates
-          git rebase origin/main
-          git push --force-with-lease origin dependabot/consolidated-updates
         env:
           APP_TOKEN: ${{ steps.app-token.outputs.token }}
           REPOSITORY: ${{ github.repository }}
