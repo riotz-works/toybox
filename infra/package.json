@@ -14,7 +14,7 @@
     "deploy:app-base": "cdk deploy AppBaseInfra --app 'tsx bin/app.ts' --asset-parallelism --asset-prebuild=true --concurrency 10 --method=direct --version-reporting false --path-metadata false --asset-metadata false"
   },
   "dependencies": {
-    "aws-cdk-lib": "2.250.0",
+    "aws-cdk-lib": "2.253.0",
     "cdk-nag": "2.37.55",
     "constructs": "10.6.0"
   },
