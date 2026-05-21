@@ -62,7 +62,7 @@ jobs:
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version-file: package.json
+          node-version: lts/*
           cache: pnpm
       - name: Setup
         run: |
@@ -145,7 +145,7 @@ jobs:
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version-file: package.json
+          node-version: lts/*
           cache: pnpm
       - name: Knip
         run: |
@@ -175,7 +175,7 @@ jobs:
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version-file: package.json
+          node-version: lts/*
           cache: pnpm
       - name: Determine Stage
         id: determine-stage
@@ -261,8 +261,8 @@ jobs:
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version-file: package.json
           cache: pnpm
+          node-version: lts/*
       - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           aws-region: 'us-east-1'
@@ -289,8 +289,8 @@ jobs:
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version-file: package.json
           cache: pnpm
+          node-version: lts/*
       - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           aws-region: 'us-east-1'
@@ -350,8 +350,8 @@ jobs:
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version-file: package.json
           cache: pnpm
+          node-version: lts/*
       - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           aws-region: 'us-east-1'
@@ -377,8 +377,8 @@ jobs:
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version-file: package.json
           cache: pnpm
+          node-version: lts/*
       - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           aws-region: 'us-east-1'

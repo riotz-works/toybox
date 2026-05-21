@@ -16,7 +16,7 @@ import pkg from './package.json' with { type: 'json', };
 export default [
   { files: [ '**/*.{ts,js,cjs,mjs}', ], },
   { languageOptions: { globals: globals.node, }, },
-  { settings: { node: { version: pkg.engines.node, }, }, },
+  { settings: { node: { version: pkg.devEngines.runtime.version, }, }, },
   { ignores: [ ...readFileSync('.gitignore', 'utf-8',).split('\n',).filter((line,) => line && !line.startsWith('#',),), ], },
   js.configs.all,
   stylistic.configs.all,
