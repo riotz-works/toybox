@@ -16,8 +16,8 @@ concurrency:
 
 
 env:
-  eslint-max-warnings: 10 # Default allowed value is 10
   NODE_OPTIONS: --max-old-space-size=4096
+  eslint-max-warnings: 10 # Default allowed value is 10
 
 
 jobs:
