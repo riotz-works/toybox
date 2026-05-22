@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention -- 'cuz naming by aws-cdk */
 import { Stack, type StackProps, } from 'aws-cdk-lib';
-import { FederatedPrincipal, OpenIdConnectProvider, PolicyStatement, Role, } from 'aws-cdk-lib/aws-iam';
+import { AccountRootPrincipal, CompositePrincipal, FederatedPrincipal, OpenIdConnectProvider, PolicyStatement, Role, } from 'aws-cdk-lib/aws-iam';
 import { NagSuppressions, } from 'cdk-nag';
 import type { Construct, } from 'constructs';
 import { idToName, name, repo, type Config, } from '../config.js';
@@ -37,6 +37,7 @@ const createRoles = (scope: Construct, props: Config,): void => {
     `arn:aws:iam::${props.env.account}:oidc-provider/token.actions.githubusercontent.com`,
   );
 
+
   const readonlyRole = new Role(scope, 'SysCiReadonlyRole', {
     roleName: `sys-ci-${name}-readonly${props.suffix}`,
     assumedBy: new FederatedPrincipal(
@@ -68,29 +69,34 @@ const createRoles = (scope: Construct, props: Config,): void => {
     { id: 'AwsSolutions-IAM5', reason: 'CloudFormation List/Describe actions do not support resource-level restrictions.', },
   ], true,);
 
+
+  const deployOidcPrincipal = new FederatedPrincipal(
+    provider.openIdConnectProviderArn,
+    props.env.stage === 'prd' ? {
+      StringEquals: {
+        'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',
+        'token.actions.githubusercontent.com:sub': [
+          `repo:${repo}:ref:refs/heads/stable`,
+          `repo:${repo}:ref:refs/heads/production`,
+        ],
+      },
+    } : {
+      StringEquals: { 'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com', },
+      StringLike: {
+        'token.actions.githubusercontent.com:sub': [
+          `repo:${repo}:ref:refs/heads/main`,
+          `repo:${repo}:ref:refs/heads/qa/*`,
+        ],
+      },
+    },
+    'sts:AssumeRoleWithWebIdentity',
+  );
+
   const deployRole = new Role(scope, 'SysCiDeployRole', {
     roleName: `sys-ci-${name}-deploy${props.suffix}`,
-    assumedBy: new FederatedPrincipal(
-      provider.openIdConnectProviderArn,
-      props.env.stage === 'prd' ? {
-        StringEquals: {
-          'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',
-          'token.actions.githubusercontent.com:sub': [
-            `repo:${repo}:ref:refs/heads/stable`,
-            `repo:${repo}:ref:refs/heads/production`,
-          ],
-        },
-      } : {
-        StringEquals: { 'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com', },
-        StringLike: {
-          'token.actions.githubusercontent.com:sub': [
-            `repo:${repo}:ref:refs/heads/main`,
-            `repo:${repo}:ref:refs/heads/qa/*`,
-          ],
-        },
-      },
-      'sts:AssumeRoleWithWebIdentity',
-    ),
+    assumedBy: props.env.stage === 'np'
+      ? new CompositePrincipal(deployOidcPrincipal, new AccountRootPrincipal(),) // 'cuz use to local deploy with CLI
+      : deployOidcPrincipal,
   },);
   deployRole.addToPolicy(new PolicyStatement({
     actions: [
