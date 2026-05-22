@@ -34,9 +34,9 @@ env:
   NODE_OPTIONS: --max-old-space-size=4096
   matrix-node-versions: 24
   role-readonly-np: arn:aws:iam::807845208391:role/sys-ci-toybox-readonly-np
-  role-readonly-prd: arn:aws:iam::807845208391:role/sys-ci-toybox-readonly-prd
+  role-readonly-prd: arn:aws:iam::807845208391:role/sys-ci-toybox-readonly
   role-deploy-np: arn:aws:iam::807845208391:role/sys-ci-toybox-deploy-np
-  role-deploy-prd: arn:aws:iam::807845208391:role/sys-ci-toybox-deploy-prd
+  role-deploy-prd: arn:aws:iam::807845208391:role/sys-ci-toybox-deploy
 
 
 jobs:
