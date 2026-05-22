@@ -3,7 +3,7 @@ import { Bucket, BucketAccessControl, ObjectOwnership, StorageClass, type IBucke
 import { NagSuppressions, } from 'cdk-nag';
 import { Construct, } from 'constructs';
 import { name, } from '../../config.js';
-import { BaseBucket, OutputCrossStack, type BaseBucketProps, type OutputProps, } from '../base/index.js';
+import { BaseBucket, OutputCrossStack, type BaseBucketProps, type ImportOptions, } from '../base/index.js';
 
 
 type LoggingBucketProps = Omit<BaseBucketProps, 'deadLetterQueue' | 'malwareNotificationTopic' | 'bucketName'>;
@@ -11,10 +11,12 @@ type LoggingBucketProps = Omit<BaseBucketProps, 'deadLetterQueue' | 'malwareNoti
 
 class LoggingBucket extends Construct {
 
+  private readonly bucket: BaseBucket;
+
   public constructor(scope: Construct, id: string, props: LoggingBucketProps,) {
     super(scope, id,);
 
-    const bucket = new BaseBucket(this, 'BaseBucket', {
+    this.bucket = new BaseBucket(this, 'BaseBucket', {
       bucketName: `${name}-logging`,
       versioned: false,
       accessControl: BucketAccessControl.LOG_DELIVERY_WRITE,
@@ -27,16 +29,16 @@ class LoggingBucket extends Construct {
       },],
       ...props, // 'props' last to allow overrides of defaults defined above
     }, false,);
-    NagSuppressions.addResourceSuppressions(bucket, [
+    NagSuppressions.addResourceSuppressions(this.bucket, [
       { id: 'AwsSolutions-S1', reason: 'Logging bucket should not have server access logs to prevent circular logging', },
     ], true,);
 
-    new OutputCrossStack(this, 'LoggingBucketName', bucket.bucketName, 'logging-bucket-name', props,);
+    new OutputCrossStack(this, 'LoggingBucketName', { value: this.bucket.bucketRef.bucketName, },);
   }
 
 
-  public static import(scope: Construct, id: string, props: OutputProps,): IBucket {
-    const bucketName = OutputCrossStack.import('logging-bucket-name', props,);
+  public static import(scope: Construct, id: string, stackName: string, options?: ImportOptions,): IBucket {
+    const bucketName = OutputCrossStack.import(stackName, 'LoggingBucketName', options,);
     return Bucket.fromBucketName(scope, id, bucketName,);
   }
 }

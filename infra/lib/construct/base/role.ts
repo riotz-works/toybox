@@ -13,7 +13,6 @@ class BaseRole extends Construct {
 
   private readonly role: Role;
 
-  public get roleArn(): string { return this.role.roleArn; }
   public get roleRef(): IRole { return this.role; }
 
   public constructor(scope: Construct, id: string, props: BaseRoleProps,) {

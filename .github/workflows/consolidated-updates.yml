@@ -19,6 +19,10 @@ concurrency:
   cancel-in-progress: true
 
 
+env:
+  repository: toybox
+
+
 jobs:
   create-pr:
     if: github.event_name == 'push' && github.ref == 'refs/heads/dependabot/consolidated-updates'
@@ -31,12 +35,14 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+      - uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         id: app-token
         with:
           app-id: ${{ secrets.RELEASE_FLOW_APP_ID }}
           private-key: ${{ secrets.RELEASE_FLOW_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+          repositories: ${{ env.repository }}
+          permission-contents: read
+          permission-pull-requests: write
       - name: Create PR
         run: |
           git remote set-url origin https://x-access-token:"${GITHUB_TOKEN}"@github.com/"${GITHUB_REPOSITORY}".git
@@ -62,12 +68,13 @@ jobs:
     permissions:
       contents: write # Required to rebase the consolidated branch onto main
     steps:
-      - uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+      - uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         id: app-token
         with:
           app-id: ${{ secrets.RELEASE_FLOW_APP_ID }}
           private-key: ${{ secrets.RELEASE_FLOW_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+          repositories: ${{ env.repository }}
+          permission-contents: write
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           token: ${{ steps.app-token.outputs.token }}
@@ -77,14 +84,16 @@ jobs:
         run: |
           git remote set-url origin "https://x-access-token:$APP_TOKEN@github.com/$REPOSITORY.git"
           git fetch origin main
-          if ! git ls-remote --exit-code --heads origin dependabot/consolidated-updates > /dev/null; then
-            echo "::error::Branch dependabot/consolidated-updates does not exist on origin"
-            exit 1
+          if git ls-remote --exit-code --heads origin dependabot/consolidated-updates > /dev/null; then
+            git fetch origin dependabot/consolidated-updates
+            git checkout -B dependabot/consolidated-updates origin/dependabot/consolidated-updates
+            git rebase origin/main
+            git push --force-with-lease origin dependabot/consolidated-updates
+          else
+            echo "Branch dependabot/consolidated-updates does not exist. Creating from main..."
+            git checkout -b dependabot/consolidated-updates origin/main
+            git push origin dependabot/consolidated-updates
           fi
-          git fetch origin dependabot/consolidated-updates
-          git checkout -B dependabot/consolidated-updates origin/dependabot/consolidated-updates
-          git rebase origin/main
-          git push --force-with-lease origin dependabot/consolidated-updates
         env:
           APP_TOKEN: ${{ steps.app-token.outputs.token }}
           REPOSITORY: ${{ github.repository }}
@@ -96,12 +105,13 @@ jobs:
     permissions:
       contents: write # Required to update dependency files and create PRs
     steps:
-      - uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+      - uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         id: app-token
         with:
           app-id: ${{ secrets.RELEASE_FLOW_APP_ID }}
           private-key: ${{ secrets.RELEASE_FLOW_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+          repositories: ${{ env.repository }}
+          permission-contents: write
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           token: ${{ steps.app-token.outputs.token }}

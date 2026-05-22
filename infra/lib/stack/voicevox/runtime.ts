@@ -13,10 +13,11 @@ import { BaseDockerImageFunction, BaseStack, Output, type BaseStackProps, } from
 type VoicevoxRuntimeStackProps = BaseStackProps & Config;
 
 
+const STACK_ID = 'VoicevoxRuntime' as const;
 export class VoicevoxRuntimeStack extends BaseStack {
 
-  public constructor(scope: Construct, id: string, props: VoicevoxRuntimeStackProps,) {
-    super(scope, id, props,);
+  public constructor(scope: Construct, props: VoicevoxRuntimeStackProps,) {
+    super(scope, STACK_ID, props,);
 
     const lambda = new BaseDockerImageFunction(this, 'Voicevox', {
       code: DockerImageCode.fromImageAsset(path.dirname(fileURLToPath(appPath,),),),
@@ -33,6 +34,6 @@ export class VoicevoxRuntimeStack extends BaseStack {
     functionUrl.grantInvokeUrl(new AccountPrincipal(this.account,),);
 
 
-    new Output(this, 'FunctionUrl', functionUrl.url,);
+    new Output(this, 'FunctionUrl', { value: functionUrl.url, },);
   }
 }

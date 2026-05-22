@@ -1,4 +1,4 @@
-name: CI/CD App Base Infra
+name: CI/CD App Stack
 
 on:
   workflow_dispatch:
@@ -7,12 +7,12 @@ on:
       - '**'
       - '!wip/**'
     paths:
-      - '.github/workflows/ci-cd-app-base-infra.yml'
-      - 'infra/bin/app-base.ts'
+      - '.github/workflows/ci-cd-app-stack.yml'
+      - 'infra/bin/app-stack.ts'
       - 'infra/lib/config.ts'
       - 'infra/lib/util.ts'
       - 'infra/lib/construct/**'
-      - 'infra/lib/stack/app-base-infra.ts'
+      - 'infra/lib/stack/**'
       - 'infra/package.json'
       - 'package.json'
       - 'pnpm-lock.yaml'
@@ -218,7 +218,7 @@ jobs:
       - name: Package
         run: |
           pnpm run setup
-          pnpm infra run synth:app-base --context stage="$STAGE_NAME"
+          pnpm infra run synth:app-stack --context stage="$STAGE_NAME"
         env:
           STAGE_NAME: ${{ steps.determine-stage.outputs.stage_name }}
 
@@ -274,7 +274,7 @@ jobs:
       - name: Deploy to Dev
         run: |
           pnpm run setup
-          pnpm infra run deploy:app-base --context stage=dev --require-approval never
+          pnpm infra run deploy:app-stack --context stage=dev --require-approval never
 
   deploy-to-qas-stage:
     if: startsWith(github.ref, 'refs/heads/qa/')
@@ -334,7 +334,7 @@ jobs:
         if: steps.check_branches.outputs.skip != 'true'
         run: |
           pnpm run setup
-          pnpm infra run deploy:app-base --context stage="$STAGE_NAME" --require-approval never
+          pnpm infra run deploy:app-stack --context stage="$STAGE_NAME" --require-approval never
         env:
           HEAD_REF: ${{ github.head_ref }}
           STAGE_NAME: ${{ steps.check_branches.outputs.qa_env }}
@@ -365,7 +365,7 @@ jobs:
       - name: Deploy to Staging
         run: |
           pnpm run setup
-          pnpm infra run deploy:app-base --context stage=stg --require-approval never
+          pnpm infra run deploy:app-stack --context stage=stg --require-approval never
 
   deploy-to-prd-stage:
     if: github.ref == 'refs/heads/production'
@@ -393,4 +393,4 @@ jobs:
       - name: Deploy to Production
         run: |
           pnpm run setup
-          pnpm infra run deploy:app-base --context stage=prd --require-approval never
+          pnpm infra run deploy:app-stack --context stage=prd --require-approval never

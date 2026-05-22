@@ -10,8 +10,9 @@ on:
       - '.github/workflows/ci-cd-account-base-infra.yml'
       - 'infra/bin/account.ts'
       - 'infra/lib/config.ts'
-      - 'infra/lib/util.ts'
+      - 'infra/lib/construct/base/output.ts'
       - 'infra/lib/stack/account-base-infra.ts'
+      - 'infra/lib/util.ts'
       - 'infra/package.json'
       - 'package.json'
       - 'pnpm-lock.yaml'
@@ -31,9 +32,12 @@ concurrency:
 
 env:
   NODE_OPTIONS: --max-old-space-size=4096
-  aws-account-id-dev: 807845208391
-  aws-account-id-prd: 807845208391
   matrix-node-versions: 24
+  repository: toybox
+  role-readonly-np: arn:aws:iam::807845208391:role/sys-ci-toybox-readonly-np
+  role-readonly-prd: arn:aws:iam::807845208391:role/sys-ci-toybox-readonly-prd
+  role-deploy-np: arn:aws:iam::807845208391:role/sys-ci-toybox-deploy-np
+  role-deploy-prd: arn:aws:iam::807845208391:role/sys-ci-toybox-deploy-prd
 
 
 jobs:
@@ -58,10 +62,10 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      - uses: pnpm/action-setup@739bfe42ca9233c5e6aca07c1a25a9d34aca49b0 # v6.0.7
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version-file: package.json
+          node-version: lts/*
           cache: pnpm
       - name: Setup
         run: |
@@ -89,8 +93,8 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      - uses: pnpm/action-setup@739bfe42ca9233c5e6aca07c1a25a9d34aca49b0 # v6.0.7
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
@@ -121,8 +125,8 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      - uses: pnpm/action-setup@739bfe42ca9233c5e6aca07c1a25a9d34aca49b0 # v6.0.7
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
@@ -141,10 +145,10 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      - uses: pnpm/action-setup@739bfe42ca9233c5e6aca07c1a25a9d34aca49b0 # v6.0.7
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version-file: package.json
+          node-version: lts/*
           cache: pnpm
       - name: Knip
         run: |
@@ -171,28 +175,30 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      - uses: pnpm/action-setup@739bfe42ca9233c5e6aca07c1a25a9d34aca49b0 # v6.0.7
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version-file: package.json
+          node-version: lts/*
           cache: pnpm
       - name: Setup Dependencies
         run: |
           pnpm run setup
-      - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
+      - uses: aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885 # v6.1.1
+        if: github.ref != 'refs/heads/stable' && github.ref != 'refs/heads/production'
         with:
           aws-region: 'us-east-1'
-          role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-dev }}:role/sys-ci-toybox-readonly'
-          role-session-name: gha-oreo-${{ github.run_id }}
+          role-to-assume: '${{ env.role-readonly-np }}'
+          role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Package Dev
+        if: github.ref != 'refs/heads/stable' && github.ref != 'refs/heads/production'
         run: |
-          pnpm infra run synth:account --context stage=dev
-      - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
+          pnpm infra run synth:account --context stage=np
+      - uses: aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885 # v6.1.1
         if: github.ref == 'refs/heads/stable' || github.ref == 'refs/heads/production'
         with:
           aws-region: 'us-east-1'
-          role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-prd }}:role/sys-ci-toybox-readonly'
-          role-session-name: gha-oreo-${{ github.run_id }}
+          role-to-assume: '${{ env.role-readonly-prd }}'
+          role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Package Production
         if: github.ref == 'refs/heads/stable' || github.ref == 'refs/heads/production'
         run: |
@@ -236,20 +242,21 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      - uses: pnpm/action-setup@739bfe42ca9233c5e6aca07c1a25a9d34aca49b0 # v6.0.7
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version-file: package.json
-          cache: pnpm
-      - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
+          node-version: lts/*
+          cache: '' # 'cuz to prevent cache poisoning
+          package-manager-cache: false
+      - uses: aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885 # v6.1.1
         with:
           aws-region: 'us-east-1'
-          role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-dev }}:role/sys-ci-toybox-deploy'
-          role-session-name: gha-oreo-${{ github.run_id }}
+          role-to-assume: '${{ env.role-deploy-np }}'
+          role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Deploy to Dev
         run: |
           pnpm run setup
-          pnpm infra run deploy:account --context stage=dev --require-approval never
+          pnpm infra run deploy:account --context stage=np --require-approval never
 
   deploy-to-prd-stage:
     if: github.ref == 'refs/heads/production'
@@ -263,16 +270,17 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      - uses: pnpm/action-setup@739bfe42ca9233c5e6aca07c1a25a9d34aca49b0 # v6.0.7
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version-file: package.json
-          cache: pnpm
-      - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
+          node-version: lts/*
+          cache: '' # 'cuz to prevent cache poisoning
+          package-manager-cache: false
+      - uses: aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885 # v6.1.1
         with:
           aws-region: 'us-east-1'
-          role-to-assume: 'arn:aws:iam::${{ env.aws-account-id-prd }}:role/sys-ci-toybox-deploy'
-          role-session-name: gha-oreo-${{ github.run_id }}
+          role-to-assume: '${{ env.role-deploy-prd }}'
+          role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Deploy to Production
         run: |
           pnpm run setup

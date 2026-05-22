@@ -1,37 +1,39 @@
 import { CfnOutput, Fn, } from 'aws-cdk-lib';
 import type { Construct, } from 'constructs';
-import { name, type Config, } from '../../config.js';
 
 
-type OutputProps = {
-  env: {
-    stage: string;
-  };
-};
+type OutputProps = { value: string; exportName?: string };
+type ImportOptions = { region?: string; roleArn?: string };
 
 
 class Output extends CfnOutput {
-  public constructor(scope: Construct, id: string, value: string, exportName?: string,) {
-    super(scope, id, exportName ? { value, exportName, } : { value, },);
+  public constructor(scope: Construct, id: string, props: OutputProps,) {
+    super(scope, id, {
+      value: props.value,
+      ...props.exportName ? { exportName: props.exportName, } : {},
+    },);
+    this.overrideLogicalId(id,);
   }
 
-  protected static importValue(key: string, exportName: string, props: OutputProps,): string {
-    return Fn.importValue(`${name}:${key}:${props.env.stage}:${exportName}`,);
+  public static import(stackName: string, id: string, options?: ImportOptions,): string {
+    return Fn.getStackOutput(stackName, id, options?.region, options?.roleArn,);
   }
 }
 
 
 class OutputCrossStack extends Output {
 
-  public constructor(scope: Construct, id: string, value: string, exportName: string, props: Config,) {
-    super(scope, `CrossStack${id}`, value, `${name}:xref:${props.env.stage}:${exportName}`,);
+  public constructor(scope: Construct, id: string, props: OutputProps,) {
+    super(scope, OutputCrossStack.outputName(id,), props,);
   }
 
-  public static import(exportName: string, props: OutputProps,): string {
-    return super.importValue('xref', exportName, props,);
+  public static override import(stackName: string, id: string, options?: ImportOptions,): string {
+    return super.import(stackName, OutputCrossStack.outputName(id,), options,);
   }
+
+  private static outputName(id: string,): string { return `CrossStack${id}`; }
 }
 
 
-export type { OutputProps, };
+export type { ImportOptions, };
 export { Output, OutputCrossStack, };

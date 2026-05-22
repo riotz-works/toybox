@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention -- 'cuz naming for aws resources */
 import { PolicyDocument, PolicyStatement, ServicePrincipal, } from 'aws-cdk-lib/aws-iam';
-import { Topic, type LoggingProtocol, type TopicProps, } from 'aws-cdk-lib/aws-sns';
+import { Topic, type ITopic, type LoggingProtocol, type TopicProps, } from 'aws-cdk-lib/aws-sns';
 import { Construct, } from 'constructs';
 import { idToName, type Config, } from '../../config.js';
 import { BaseRole, } from './role.js';
@@ -13,7 +13,7 @@ class BaseTopic extends Construct {
 
   private readonly topic: Topic;
 
-  public get topicArn(): string { return this.topic.topicArn; }
+  public get topicRef(): ITopic { return this.topic; }
 
   public constructor(scope: Construct, id: string, props: BaseTopicProps,) {
     super(scope, id,);

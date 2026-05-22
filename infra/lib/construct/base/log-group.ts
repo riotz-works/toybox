@@ -1,10 +1,10 @@
 import { Effect, PolicyStatement, ServicePrincipal, } from 'aws-cdk-lib/aws-iam';
 import { CfnDeliveryStream, } from 'aws-cdk-lib/aws-kinesisfirehose';
-import { CfnSubscriptionFilter, LogGroup, LogStream, type ILogGroupRef, type LogGroupProps, } from 'aws-cdk-lib/aws-logs';
+import { CfnSubscriptionFilter, LogGroup, type ILogGroup, type LogGroupProps, } from 'aws-cdk-lib/aws-logs';
 import { NagSuppressions, } from 'cdk-nag';
 import { Construct, } from 'constructs';
 import { idToName, type Config, } from '../../config.js';
-import { LoggingBucket, } from '../s3/logging.js';
+import { AppBaseInfraStack, } from '../../stack/app-base-infra.js';
 import { BaseRole, } from './role.js';
 
 
@@ -18,13 +18,12 @@ class BaseLogGroup extends Construct {
 
   private readonly logGroup: LogGroup;
 
-  public get logGroupArn(): string { return this.logGroup.logGroupArn; }
-  public get logGroupRef(): ILogGroupRef { return this.logGroup; }
+  public get logGroupRef(): ILogGroup { return this.logGroup; }
 
   public constructor(scope: Construct, id: string, props: BaseLogGroupProps,) {
     super(scope, id,);
 
-    const loggingBucket = LoggingBucket.import(this, 'LoggingBucket', props,);
+    const loggingBucket = AppBaseInfraStack.importLoggingBucket(this, props,);
 
     const prefix = `cloud-watch-logs/account_id=${props.env.account}/region=${props.env.region}/env=${props.env.stage}/`;
     const firehoseName = idToName('CwlArchive', props,);
@@ -52,24 +51,6 @@ class BaseLogGroup extends Construct {
       resources: [ loggingBucket.arnForObjects(`${prefix}*`,), ],
     },),);
 
-    const firehoseLogGroup = new LogGroup(this, 'FirehoseLogGroup', {
-      logGroupName: `/aws/kinesisfirehose/${firehoseName}`,
-    },);
-    const firehoseLogStream = new LogStream(this, 'FirehoseLogStream', {
-      logGroup: firehoseLogGroup,
-      logStreamName: 'firehose-errors',
-    },);
-    firehoseRole.addToPolicy(new PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: [ 'logs:CreateLogStream', ],
-      resources: [ firehoseLogGroup.logGroupArn, ],
-    },),);
-    firehoseRole.addToPolicy(new PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: [ 'logs:PutLogEvents', ],
-      resources: [ `${firehoseLogGroup.logGroupArn}:log-stream:*`, ],
-    },),);
-
     const deliveryStream = new CfnDeliveryStream(this, 'DeliveryStream', {
       deliveryStreamName: firehoseName,
       deliveryStreamType: 'DirectPut',
@@ -78,15 +59,10 @@ class BaseLogGroup extends Construct {
       },
       extendedS3DestinationConfiguration: {
         bucketArn: loggingBucket.bucketArn,
-        roleArn: firehoseRole.roleArn,
+        roleArn: firehoseRole.roleRef.roleArn,
         prefix: `${prefix}year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/`,
         errorOutputPrefix: `${prefix}errors/!{firehose:error-output-type}/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/`,
         compressionFormat: 'UNCOMPRESSED',
-        cloudWatchLoggingOptions: {
-          enabled: true,
-          logGroupName: firehoseLogGroup.logGroupName,
-          logStreamName: 'firehose-errors',
-        },
         processingConfiguration: {
           enabled: true,
           processors: [{
@@ -100,7 +76,6 @@ class BaseLogGroup extends Construct {
       },
     },);
     deliveryStream.node.addDependency(firehoseRole,);
-    deliveryStream.node.addDependency(firehoseLogStream,);
 
     const cwlToFirehoseRole = new BaseRole(this, 'CwlToFirehoseRole', {
       assumedBy: new ServicePrincipal('logs.amazonaws.com',),
@@ -116,7 +91,6 @@ class BaseLogGroup extends Construct {
     ], true,);
     NagSuppressions.addResourceSuppressions(firehoseRole, [
       { id: 'AwsSolutions-IAM5', reason: 'Firehose requires object ARN wildcard for prefix-scoped object writes only.', appliesTo: [{ regex: '/Resource::.*cloud-watch-logs.*/', },], },
-      { id: 'AwsSolutions-IAM5', reason: 'Firehose error logging writes to log-stream:* under its dedicated log group.', appliesTo: [{ regex: '/Resource::.*:log-stream:\\*/', },], },
     ], true,);
 
 
@@ -145,7 +119,7 @@ class BaseLogGroup extends Construct {
     const subscriptionFilter = new CfnSubscriptionFilter(this, 'ArchiveSubscription', {
       logGroupName: this.logGroup.logGroupName,
       destinationArn: deliveryStream.attrArn,
-      roleArn: cwlToFirehoseRole.roleArn,
+      roleArn: cwlToFirehoseRole.roleRef.roleArn,
       filterPattern: '',
     },);
     subscriptionFilter.node.addDependency(cwlToFirehoseRole,);
