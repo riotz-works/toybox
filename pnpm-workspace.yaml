@@ -2,10 +2,10 @@ trustPolicy: no-downgrade
 blockExoticSubdeps: true
 minimumReleaseAge: 10080 # 7 days (7 * 24 * 60 minutes)
 
-allowBuilds:
-  esbuild: false
-  unrs-resolver: false
-
 packages:
   - infra
   - app/**
+
+allowBuilds:
+  esbuild: false
+  unrs-resolver: false
