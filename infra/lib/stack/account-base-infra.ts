@@ -9,11 +9,12 @@ import { idToName, name, repo, type Config, } from '../config.js';
 type AccountBaseInfraStackProps = StackProps & Config;
 
 
+const STACK_ID = 'AccountBaseInfra' as const;
 export class AccountBaseInfraStack extends Stack {
 
-  public constructor(scope: Construct, id: string, props: AccountBaseInfraStackProps,) {
-    super(scope, id, {
-      stackName: props.stackName ?? idToName(id, props,),
+  public constructor(scope: Construct, props: AccountBaseInfraStackProps,) {
+    super(scope, STACK_ID, {
+      stackName: idToName(STACK_ID, props,),
       suppressTemplateIndentation: true,
       ...props,
     },);

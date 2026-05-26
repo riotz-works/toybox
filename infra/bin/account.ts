@@ -5,5 +5,5 @@ import { AccountBaseInfraStack, } from '../lib/stack/account-base-infra.js';
 const app = createApp({ context: { region: 'us-east-1', }, },);
 const config = createAccountConfig(app,);
 
-const accountBaseInfraStack = new AccountBaseInfraStack(app, 'AccountBaseInfra', config,);
+const accountBaseInfraStack = new AccountBaseInfraStack(app, config,);
 new CfnOutput(accountBaseInfraStack, 'StackName', { value: accountBaseInfraStack.stackName, },);
