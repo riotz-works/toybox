@@ -33,6 +33,7 @@ concurrency:
 env:
   NODE_OPTIONS: --max-old-space-size=4096
   matrix-node-versions: 24
+  repository: toybox
   role-readonly-np: arn:aws:iam::807845208391:role/sys-ci-toybox-readonly-np
   role-readonly-prd: arn:aws:iam::807845208391:role/sys-ci-toybox-readonly
   role-deploy-np: arn:aws:iam::807845208391:role/sys-ci-toybox-deploy-np
@@ -214,7 +215,7 @@ jobs:
         with:
           aws-region: 'us-east-1'
           role-to-assume: ${{ steps.determine-role.outputs.role_arn }}
-          role-session-name: gha-oreo-${{ github.run_id }}
+          role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Package
         run: |
           pnpm run setup
@@ -270,7 +271,7 @@ jobs:
         with:
           aws-region: 'us-east-1'
           role-to-assume: '${{ env.role-deploy-np }}'
-          role-session-name: gha-oreo-${{ github.run_id }}
+          role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Deploy to Dev
         run: |
           pnpm run setup
@@ -299,7 +300,7 @@ jobs:
         with:
           aws-region: 'us-east-1'
           role-to-assume: '${{ env.role-deploy-np }}'
-          role-session-name: gha-oreo-${{ github.run_id }}
+          role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Check QA Branches
         id: check_branches
         run: |
@@ -361,7 +362,7 @@ jobs:
         with:
           aws-region: 'us-east-1'
           role-to-assume: '${{ env.role-deploy-prd }}'
-          role-session-name: gha-oreo-${{ github.run_id }}
+          role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Deploy to Staging
         run: |
           pnpm run setup
@@ -389,7 +390,7 @@ jobs:
         with:
           aws-region: 'us-east-1'
           role-to-assume: '${{ env.role-deploy-prd }}'
-          role-session-name: gha-oreo-${{ github.run_id }}
+          role-session-name: gha-${{ env.repository }}-${{ github.run_id }}
       - name: Deploy to Production
         run: |
           pnpm run setup
