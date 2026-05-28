@@ -11,7 +11,7 @@
     "synth:app-stack": "cdk synth --app 'tsx bin/app-stack.ts' --strict --version-reporting false --path-metadata false --asset-metadata false",
     "deploy": "npm-run-all -p deploy:*",
     "deploy:account": "cdk deploy --app 'tsx bin/account.ts' --asset-parallelism --asset-prebuild=true --concurrency 10 --method=direct --version-reporting false --path-metadata false --asset-metadata false",
-    "deploy:app-base": "cdk deploy AppBaseInfra --app 'tsx bin/app-base.ts' --asset-parallelism --asset-prebuild=true --concurrency 10 --method=direct --version-reporting false --path-metadata false --asset-metadata false",
+    "deploy:app-base": "cdk deploy --all --app 'tsx bin/app-base.ts' --asset-parallelism --asset-prebuild=true --concurrency 10 --method=direct --version-reporting false --path-metadata false --asset-metadata false",
     "deploy:app-stack": "cdk deploy --all --app 'tsx bin/app-stack.ts' --asset-parallelism --asset-prebuild=true --concurrency 10 --method=direct --version-reporting false --path-metadata false --asset-metadata false"
   },
   "dependencies": {
