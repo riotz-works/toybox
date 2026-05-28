@@ -1,5 +1,5 @@
 /* eslint-disable import-x/no-default-export -- 'cuz defined by ESLint */
-import { existsSync, readFileSync, } from 'node:fs';
+import { existsSync, } from 'node:fs';
 import { homedir, } from 'node:os';
 import path from 'node:path';
 import { includeIgnoreFile, } from '@eslint/compat';
@@ -20,7 +20,6 @@ export default [
   { files: [ '**/*.{ts,js,cjs,mjs}', ], },
   { languageOptions: { globals: globals.node, }, },
   { settings: { node: { version: pkg.devEngines.runtime.version, }, }, },
-  { ignores: [ ...readFileSync('.gitignore', 'utf-8',).split('\n',).filter((line,) => line && !line.startsWith('#',),), ], },
   includeIgnoreFile(path.resolve(import.meta.dirname, '.gitignore',),),
   ...existsSync(path.resolve(homedir(), '.gitignore',),) ? [ includeIgnoreFile(path.resolve(homedir(), '.gitignore',),), ] : [], // eslint-disable-line security/detect-non-literal-fs-filename -- 'cuz homedir() is a safe function
   js.configs.all,
