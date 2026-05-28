@@ -14,6 +14,8 @@ import { BaseRole, } from './role.js';
 
 type BaseBucketProps = BucketProps & Config & {
   readonly bucketName: string;
+  readonly logging?: boolean;
+  readonly malwareProtection?: boolean;
 };
 
 
@@ -23,12 +25,13 @@ class BaseBucket extends Construct {
 
   public get bucketRef(): IBucket { return this.bucket as unknown as IBucket; } // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion -- 'cuz aws-cdk type definition mistake
 
-  public constructor(scope: Construct, id: string, props: BaseBucketProps, protection = true,) {
+  public constructor(scope: Construct, id: string, props: BaseBucketProps,) {
     super(scope, id,);
 
-    const { bucketName: _bucketName, serverAccessLogsBucket: _serverAccessLogsBucket, serverAccessLogsPrefix: _serverAccessLogsPrefix, objectOwnership: _objectOwnership, accessControl: _accessControl, ...config } = props;
+    const { bucketName: _bucketName, objectOwnership: _objectOwnership, accessControl: _accessControl, ...config } = props;
     const bucketName = _bucketName ? `${_bucketName}${props.suffix}${rsuffix(props,)}` : idToName(id, props,);
     const isLogBucket = _accessControl === BucketAccessControl.LOG_DELIVERY_WRITE;
+    const serverAccessLoggingEnabled = !isLogBucket && props.logging !== false;
     this.bucket = new Bucket(this, 'Bucket', {
       bucketName,
 
@@ -39,15 +42,15 @@ class BaseBucket extends Construct {
       enforceSSL: true,
       transferAcceleration: true,
 
-      ...!isLogBucket && _serverAccessLogsBucket ? {
-        serverAccessLogsBucket: _serverAccessLogsBucket,
-        serverAccessLogsPrefix: _serverAccessLogsPrefix ?? `s3/${bucketName}/`,
+      ...serverAccessLoggingEnabled ? {
+        serverAccessLogsBucket: props.serverAccessLogsBucket ?? AppBaseInfraStack.importLoggingBucket(this, props,),
+        serverAccessLogsPrefix: props.serverAccessLogsPrefix ?? `s3/${bucketName}/`,
       } : {},
 
       ...config,
 
       ..._accessControl !== undefined ? { accessControl: _accessControl, } : {},
-      objectOwnership: _objectOwnership ?? (isLogBucket || _serverAccessLogsBucket ? ObjectOwnership.OBJECT_WRITER : ObjectOwnership.BUCKET_OWNER_ENFORCED),
+      objectOwnership: _objectOwnership ?? (isLogBucket || serverAccessLoggingEnabled ? ObjectOwnership.OBJECT_WRITER : ObjectOwnership.BUCKET_OWNER_ENFORCED),
     },);
 
     this.bucket.addToResourcePolicy(new PolicyStatement({
@@ -61,7 +64,7 @@ class BaseBucket extends Construct {
       conditions: { Bool: { 'aws:SecureTransport': 'false', }, },
     },),);
 
-    if (protection) {
+    if (props.malwareProtection !== false) {
       addMalwareProtection(this.bucket, props,);
     }
   }

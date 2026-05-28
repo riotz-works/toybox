@@ -27,8 +27,10 @@ class LoggingBucket extends Construct {
           { storageClass: StorageClass.DEEP_ARCHIVE, transitionAfter: Duration.days(365,), },
         ],
       },],
+      logging: false,
+      malwareProtection: false,
       ...props, // 'props' last to allow overrides of defaults defined above
-    }, false,);
+    },);
     NagSuppressions.addResourceSuppressions(this.bucket, [
       { id: 'AwsSolutions-S1', reason: 'Logging bucket should not have server access logs to prevent circular logging', },
     ], true,);
