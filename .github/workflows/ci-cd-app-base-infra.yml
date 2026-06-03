@@ -211,7 +211,7 @@ jobs:
           STAGE_NAME: ${{ steps.determine-stage.outputs.stage_name }}
           ROLE_READONLY_NP: ${{ env.role-readonly-np }}
           ROLE_READONLY_PRD: ${{ env.role-readonly-prd }}
-      - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
+      - uses: aws-actions/configure-aws-credentials@acca2b1b2070338fb9fd1ca27ecee81d687e58e5 # v6.1.2
         with:
           aws-region: 'us-east-1'
           role-to-assume: ${{ steps.determine-role.outputs.role_arn }}
@@ -267,7 +267,7 @@ jobs:
           node-version: lts/*
           cache: '' # 'cuz to prevent cache poisoning
           package-manager-cache: false
-      - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
+      - uses: aws-actions/configure-aws-credentials@acca2b1b2070338fb9fd1ca27ecee81d687e58e5 # v6.1.2
         with:
           aws-region: 'us-east-1'
           role-to-assume: '${{ env.role-deploy-np }}'
@@ -296,7 +296,7 @@ jobs:
           node-version: lts/*
           cache: '' # 'cuz to prevent cache poisoning
           package-manager-cache: false
-      - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
+      - uses: aws-actions/configure-aws-credentials@acca2b1b2070338fb9fd1ca27ecee81d687e58e5 # v6.1.2
         with:
           aws-region: 'us-east-1'
           role-to-assume: '${{ env.role-deploy-np }}'
@@ -358,7 +358,7 @@ jobs:
           node-version: lts/*
           cache: '' # 'cuz to prevent cache poisoning
           package-manager-cache: false
-      - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
+      - uses: aws-actions/configure-aws-credentials@acca2b1b2070338fb9fd1ca27ecee81d687e58e5 # v6.1.2
         with:
           aws-region: 'us-east-1'
           role-to-assume: '${{ env.role-deploy-prd }}'
@@ -386,7 +386,7 @@ jobs:
           node-version: lts/*
           cache: '' # 'cuz to prevent cache poisoning
           package-manager-cache: false
-      - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
+      - uses: aws-actions/configure-aws-credentials@acca2b1b2070338fb9fd1ca27ecee81d687e58e5 # v6.1.2
         with:
           aws-region: 'us-east-1'
           role-to-assume: '${{ env.role-deploy-prd }}'
