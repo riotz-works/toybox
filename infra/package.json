@@ -15,7 +15,7 @@
     "deploy:app-stack": "cdk deploy --all --app 'tsx bin/app-stack.ts' --asset-parallelism --asset-prebuild=true --concurrency 10 --method=direct --version-reporting false --path-metadata false --asset-metadata false"
   },
   "dependencies": {
-    "aws-cdk-lib": "2.253.0",
+    "aws-cdk-lib": "2.260.0",
     "cdk-nag": "2.37.55",
     "constructs": "10.6.0"
   },
